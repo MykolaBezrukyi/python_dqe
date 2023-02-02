@@ -1,0 +1,8 @@
+# IDE folders
+.idea/
+
+# Caches folders
+__pycache__/
+
+# Environments
+env/
