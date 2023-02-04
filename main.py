@@ -1,4 +1,6 @@
 # import our own 'python_basics' package
+# import our own 'collections' package
+import collections
 import python_basics
 
 
@@ -15,8 +17,20 @@ def execute_python_basics_home_task() -> None:
     print(f'{python_basics.get_avg_odd(random_list):.2f}')
 
 
+def execute_collections_home_task() -> None:
+    # generate a list of random dicts due to 'generate_list_dicts' func and assign it to 'list_dicts" var
+    list_dicts = collections.generate_list_dicts()
+    # print 'list_dicts' var to a console
+    print(list_dicts)
+    # create a common dict with 'create_common_dict' func and assign the result to 'common_dict' var
+    common_dict = collections.create_common_dict(list_dicts)
+    # print 'common_dict' var to a console
+    print(common_dict)
+
+
 def main() -> None:
-    execute_python_basics_home_task()
+    # execute_python_basics_home_task()
+    execute_collections_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
