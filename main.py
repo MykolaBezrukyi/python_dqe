@@ -2,6 +2,7 @@
 # import our own 'collections' package
 import collections_python
 import python_basics
+import string_object
 
 
 def execute_python_basics_home_task() -> None:
@@ -28,9 +29,37 @@ def execute_collections_home_task() -> None:
     print(common_dict)
 
 
+def execute_string_object_home_task() -> None:
+    s = '''homEwork:
+
+tHis iz your homeWork, copy these Text to variable.
+
+
+
+You NEED TO normalize it fROM letter CASEs point oF View. also, create one MORE senTENCE witH LAST WoRDS of each existING SENtence and add it to the END OF this Paragraph.
+
+
+
+it iZ misspeLLing here. fix“iZ” with correct “is”, but ONLY when it Iz a mistAKE.
+
+
+
+last iz TO calculate nuMber OF Whitespace characteRS in this Tex. caREFULL, not only Spaces, but ALL whitespaces. I got 87.'''
+    normalized_str = string_object.normalize_string(s)
+    print(f'Normalized str:\n{normalized_str}\n')
+    correct_str = string_object.replace_incorrect_value(normalized_str)
+    print(f'Correct str:\n{correct_str}\n')
+    special_sentence = string_object.get_special_sentence(correct_str)
+    s_with_special_sentence = string_object.add_special_sentence(correct_str, special_sentence)
+    print(f'Str with special sentence:\n{s_with_special_sentence}\n')
+    count_whitespaces = string_object.count_whitespaces(correct_str)
+    print(f'Count whitespaces:\n{count_whitespaces}')
+
+
 def main() -> None:
     # execute_python_basics_home_task()
-    execute_collections_home_task()
+    # execute_collections_home_task()
+    execute_string_object_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
