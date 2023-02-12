@@ -1,0 +1,15 @@
+News -------------------------
+some news text
+some city, 12/02/2023 21.36
+------------------------------
+
+Private Ad ------------------
+some private ad text
+Actual until: 15/02/2023, 3 days left
+------------------------------
+
+Fake -------------------------
+some fake text
+Severity: major
+------------------------------
+

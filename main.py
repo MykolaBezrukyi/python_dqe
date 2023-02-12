@@ -1,5 +1,6 @@
 # import our own 'python_basics' package
 # import our own 'collections' package
+import classes_oop
 import collections_python
 import python_basics
 import string_object
@@ -56,10 +57,22 @@ last iz TO calculate nuMber OF Whitespace characteRS in this Tex. caREFULL, not 
     print(f'Count whitespaces:\n{count_whitespaces}')
 
 
+def execute_classes_oop_home_task() -> None:
+    news_feed_func = classes_oop.NEWS_FEEDS.get(
+        input('Choose a data type\n1) News\n2) Private Ad\n3) Fake\nInput just a number: ')
+    )
+    if news_feed_func is None:
+        print('There is no such news feed.')
+        return None
+    news_feed = news_feed_func()
+    news_feed.write2file()
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
-    execute_string_object_home_task()
+    # execute_string_object_home_task()
+    execute_classes_oop_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
