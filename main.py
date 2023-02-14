@@ -2,6 +2,7 @@
 # import our own 'collections' package
 import classes_oop
 import collections_python
+import functions_python
 import python_basics
 import string_object
 
@@ -57,6 +58,21 @@ last iz TO calculate nuMber OF Whitespace characteRS in this Tex. caREFULL, not 
     print(f'Count whitespaces:\n{count_whitespaces}')
 
 
+def execute_functions_home_task() -> None:
+    try:
+        number = int(input('Input a number greater than or equal to 0: '))
+        if number < 0:
+            print('Number is less than 0')
+            return None
+    except ValueError:
+        return None
+    fibonacci_dict = functions_python.create_fibonacci_dict(number)
+
+    sentence = input('Input any sentence: ')
+    palindrome_count = functions_python.get_palindrome_count(sentence)
+    uppercase_palindrome_sentence = functions_python.get_uppercase_palindrome_sentence(sentence)
+
+
 def execute_classes_oop_home_task() -> None:
     news_feed_func = classes_oop.NEWS_FEEDS.get(
         input('Choose a data type\n1) News\n2) Private Ad\n3) Fake\nInput just a number: ')
@@ -72,7 +88,8 @@ def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
     # execute_string_object_home_task()
-    execute_classes_oop_home_task()
+    execute_functions_home_task()
+    # execute_classes_oop_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
