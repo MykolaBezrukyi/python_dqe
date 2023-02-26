@@ -1,4 +1,6 @@
 import datetime
+import os
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -10,6 +12,12 @@ class Severity(Enum):
     MAJOR = 'major'
     MODERATE = 'moderate'
     MINOR = 'minor'
+
+
+class NewsFeedType(Enum):
+    NEWS = 'news'
+    PRIVATE_AD = 'private ad'
+    FAKE = 'fake'
 
 
 class NewsFeed(ABC):
@@ -78,6 +86,10 @@ def create_private_ad() -> PrivateAd:
     )
 
 
+def parse_date(date_str: str) -> datetime.date:
+    return datetime.datetime.strptime(date_str, '%d/%m/%Y').date()
+
+
 class Fake(NewsFeed):
     def __init__(self, text: str, severity: Severity):
         self.text = text
@@ -102,12 +114,68 @@ def create_fake() -> Fake:
     )
 
 
-def parse_date(date_str: str) -> datetime.date:
-    return datetime.datetime.strptime(date_str, '%d/%m/%Y').date()
+class File:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.news_feeds = self._parse_news_feeds()
+
+    def _parse_news_feeds(self) -> list[NewsFeed]:
+        with open(self.file_path, 'r', encoding='utf-8') as file:
+            news_feeds = file.read().strip().split('\n\n')
+            return [
+                self._parse_news_feed(news_feed.strip())
+                for news_feed in news_feeds
+            ]
+
+    def _parse_news_feed(self, news_feed: str) -> NewsFeed:
+        news_feed_strings = news_feed.split('\n')
+        news_feed_type = NewsFeedType(' '.join(re.findall(r'\w+[^ ]', news_feed_strings[0])).lower())
+        news_feed_pattern = NEWS_FEED_PATTERNS.get(news_feed_type)
+        news_feed_fields = '\n'.join(news_feed_strings[1:-1])
+        news_feed_data = re.findall(news_feed_pattern, news_feed_fields)[0]
+        if news_feed_type == NewsFeedType.NEWS:
+            text, city = news_feed_data[0], news_feed_data[1]
+            news = News(
+                text=text,
+                city=city
+            )
+            news.date = datetime.datetime.strptime(news_feed_data[2], '%d/%m/%Y %H.%M')
+            return news
+        elif news_feed_type == NewsFeedType.PRIVATE_AD:
+            text, expiration_date_str = news_feed_data
+            expiration_date = parse_date(expiration_date_str)
+            return PrivateAd(
+                text=text,
+                expiration_date=expiration_date
+            )
+        elif news_feed_type == NewsFeedType.FAKE:
+            text, severity_str = news_feed_data
+            return Fake(
+                text=text,
+                severity=Severity(severity_str)
+            )
+
+    def write2file(self) -> None:
+        for news_feed in self.news_feeds:
+            news_feed.write2file()
+
+    def remove_file(self) -> None:
+        os.remove(self.file_path)
+
+
+def create_text_file() -> File:
+    file_path = input('Input a path to file: ')
+    return File(file_path)
 
 
 NEWS_FEEDS = {
     '1': create_news,
     '2': create_private_ad,
     '3': create_fake,
+}
+
+NEWS_FEED_PATTERNS = {
+    NewsFeedType.NEWS: r'(.*?)\n(.*?), (.*?)$',
+    NewsFeedType.PRIVATE_AD: r'(.*?)\nActual until: (.*?),',
+    NewsFeedType.FAKE: r'(.*?)\nSeverity: (.*?)$',
 }

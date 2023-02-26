@@ -5,6 +5,7 @@ import collections_python
 import functions_python
 import python_basics
 import string_object
+from classes_oop.home_task import create_text_file
 
 
 def execute_python_basics_home_task() -> None:
@@ -84,12 +85,19 @@ def execute_classes_oop_home_task() -> None:
     news_feed.write2file()
 
 
+def execute_modules_home_task() -> None:
+    text_file = create_text_file()
+    text_file.write2file()
+    text_file.remove_file()
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
     # execute_string_object_home_task()
-    execute_functions_home_task()
+    # execute_functions_home_task()
     # execute_classes_oop_home_task()
+    execute_modules_home_task()
 
 
 # execute 'main' func only if the main.py file is executed

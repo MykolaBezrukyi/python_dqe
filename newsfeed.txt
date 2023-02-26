@@ -13,3 +13,13 @@ some fake text
 Severity: major
 ------------------------------
 
+News -------------------------
+some long news text
+some city, 27/02/2023 21.55
+------------------------------
+
+Private Ad ------------------
+some long private ad text
+Actual until: 01/03/2023, 2 days left
+------------------------------
+
