@@ -2,10 +2,11 @@
 # import our own 'collections' package
 import classes_oop
 import collections_python
+import csv_parsing
 import functions_python
 import python_basics
 import string_object
-from classes_oop.home_task import create_text_file
+from classes_oop.home_task import FILE_NAME, create_text_file
 
 
 def execute_python_basics_home_task() -> None:
@@ -83,6 +84,7 @@ def execute_classes_oop_home_task() -> None:
         return None
     news_feed = news_feed_func()
     news_feed.write2file()
+    execute_csv_parsing_home_task()
 
 
 def execute_modules_home_task() -> None:
@@ -91,13 +93,19 @@ def execute_modules_home_task() -> None:
     text_file.remove_file()
 
 
+def execute_csv_parsing_home_task() -> None:
+    csv_parsing.create_word_count_csv(FILE_NAME)
+    csv_parsing.create_detail_csv(FILE_NAME)
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
     # execute_string_object_home_task()
     # execute_functions_home_task()
     # execute_classes_oop_home_task()
-    execute_modules_home_task()
+    # execute_modules_home_task()
+    execute_csv_parsing_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
