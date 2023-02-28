@@ -6,7 +6,7 @@ import csv_parsing
 import functions_python
 import python_basics
 import string_object
-from classes_oop.home_task import FILE_NAME, create_text_file
+from classes_oop.home_task import FILE_NAME, create_file
 
 
 def execute_python_basics_home_task() -> None:
@@ -88,7 +88,7 @@ def execute_classes_oop_home_task() -> None:
 
 
 def execute_modules_home_task() -> None:
-    text_file = create_text_file()
+    text_file = create_file()
     text_file.write2file()
     text_file.remove_file()
 
@@ -98,6 +98,12 @@ def execute_csv_parsing_home_task() -> None:
     csv_parsing.create_detail_csv(FILE_NAME)
 
 
+def execute_json_home_task() -> None:
+    json_file = create_file()
+    json_file.write2file()
+    json_file.remove_file()
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
@@ -105,7 +111,8 @@ def main() -> None:
     # execute_functions_home_task()
     # execute_classes_oop_home_task()
     # execute_modules_home_task()
-    execute_csv_parsing_home_task()
+    # execute_csv_parsing_home_task()
+    execute_json_home_task()
 
 
 # execute 'main' func only if the main.py file is executed

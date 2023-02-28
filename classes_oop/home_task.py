@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import re
 from abc import ABC, abstractmethod
@@ -114,13 +115,15 @@ def create_fake() -> Fake:
     )
 
 
-class File:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-        self.news_feeds = self._parse_news_feeds()
+class NewsFeedParser(ABC):
+    @abstractmethod
+    def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
+        raise NotImplementedError
 
-    def _parse_news_feeds(self) -> list[NewsFeed]:
-        with open(self.file_path, 'r', encoding='utf-8') as file:
+
+class TextFileNewsFeedParser(NewsFeedParser):
+    def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
+        with open(file_path, 'r', encoding='utf-8') as file:
             news_feeds = file.read().strip().split('\n\n')
             return [
                 self._parse_news_feed(news_feed.strip())
@@ -155,6 +158,46 @@ class File:
                 severity=Severity(severity_str)
             )
 
+
+class JSONFileNewsFeedParser(NewsFeedParser):
+    def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            return [
+                self._parse_news_feed(news_feed)
+                for news_feed in data
+            ]
+
+    def _parse_news_feed(self, news_feed: dict[str, str]) -> NewsFeed:
+        news_feed_type = NewsFeedType(news_feed.get('type'))
+        if news_feed_type == NewsFeedType.NEWS:
+            text, city = news_feed.get('text'), news_feed.get('city')
+            news = News(
+                text=text,
+                city=city
+            )
+            news.date = datetime.datetime.strptime(news_feed.get('date'), '%d/%m/%Y %H.%M')
+            return news
+        elif news_feed_type == NewsFeedType.PRIVATE_AD:
+            text, expiration_date_str = news_feed.get('text'), news_feed.get('expiration_date')
+            expiration_date = parse_date(expiration_date_str)
+            return PrivateAd(
+                text=text,
+                expiration_date=expiration_date
+            )
+        elif news_feed_type == NewsFeedType.FAKE:
+            text, severity = news_feed.get('text'), Severity(news_feed.get('severity'))
+            return Fake(
+                text=text,
+                severity=severity
+            )
+
+
+class File:
+    def __init__(self, file_path: str, news_feed_parser: NewsFeedParser):
+        self.file_path = file_path
+        self.news_feeds = news_feed_parser.parse_news_feeds(file_path)
+
     def write2file(self) -> None:
         for news_feed in self.news_feeds:
             news_feed.write2file()
@@ -163,10 +206,19 @@ class File:
         os.remove(self.file_path)
 
 
-def create_text_file() -> File:
+def create_file() -> File:
     file_path = input('Input a path to file: ')
-    return File(file_path)
+    file_extension = file_path.split('.')[-1]
+    return File(
+        file_path=file_path,
+        news_feed_parser=FILE_PARSERS[file_extension]()
+    )
 
+
+FILE_PARSERS = {
+    'txt': TextFileNewsFeedParser,
+    'json': JSONFileNewsFeedParser,
+}
 
 NEWS_FEEDS = {
     '1': create_news,

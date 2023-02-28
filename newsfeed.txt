@@ -38,3 +38,18 @@ some long private ad text
 Actual until: 01/03/2023, 1 days left
 ------------------------------
 
+News -------------------------
+some json news text
+some json news city, 01/03/2023 15.36
+------------------------------
+
+Private Ad ------------------
+some json private ad text
+Actual until: 02/03/2023, 2 days left
+------------------------------
+
+Fake -------------------------
+some json fake text
+Severity: minor
+------------------------------
+
