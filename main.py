@@ -110,6 +110,17 @@ def execute_xml_home_task() -> None:
     xml_file.remove_file()
 
 
+def execute_database_home_task() -> None:
+    news_feed_func = classes_oop.NEWS_FEEDS.get(
+        input('Choose a data type\n1) News\n2) Private Ad\n3) Fake\nInput just a number: ')
+    )
+    if news_feed_func is None:
+        print('There is no such news feed.')
+        return None
+    news_feed = news_feed_func()
+    news_feed.write2db()
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
@@ -119,7 +130,8 @@ def main() -> None:
     # execute_modules_home_task()
     # execute_csv_parsing_home_task()
     # execute_json_home_task()
-    execute_xml_home_task()
+    # execute_xml_home_task()
+    execute_database_home_task()
 
 
 # execute 'main' func only if the main.py file is executed

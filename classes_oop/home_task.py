@@ -2,8 +2,10 @@ import datetime
 import json
 import os
 import re
+import sqlite3
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Any
 from xml.etree import ElementTree
 
 FILE_NAME = 'newsfeed.txt'
@@ -27,6 +29,10 @@ class NewsFeed(ABC):
     def write2file(self) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def write2db(self) -> None:
+        raise NotImplementedError
+
 
 class News(NewsFeed):
     def __init__(self, text: str, city: str):
@@ -42,6 +48,17 @@ class News(NewsFeed):
                 f'{self.date.strftime("%d/%m/%Y %H.%M")}\n'
             )
             file.write('------------------------------\n\n')
+
+    def write2db(self) -> None:
+        news = news_feed_database.read_query('SELECT text, city, date FROM news')
+        fields = (self.text, self.city, self.date.strftime('%d/%m/%Y %H:%M'))
+        if fields in news:
+            print('Such news already exists.')
+        news_feed_database.execute_query(
+            '''
+            INSERT INTO news(text, city, date) VALUES (?, ?, ?)
+            ''', *fields
+        )
 
 
 def create_news() -> News:
@@ -71,6 +88,18 @@ class PrivateAd(NewsFeed):
                 f'{self.day_left} days left\n'
             )
             file.write('------------------------------\n\n')
+
+    def write2db(self) -> None:
+        news = news_feed_database.read_query('SELECT text, expiration_date FROM private_ads')
+        fields = (self.text, self.expiration_date.strftime('%d/%m/%Y'))
+        if fields in news:
+            print('Such private ad already exists.')
+            return None
+        news_feed_database.execute_query(
+            '''
+            INSERT INTO private_ads(text, expiration_date) VALUES (?, ?)
+            ''', *fields
+        )
 
 
 def create_private_ad() -> PrivateAd:
@@ -102,6 +131,18 @@ class Fake(NewsFeed):
             file.write('Fake -------------------------\n')
             file.write(f'{self.text}\nSeverity: {self.severity.value}\n')
             file.write('------------------------------\n\n')
+
+    def write2db(self) -> None:
+        news = news_feed_database.read_query('SELECT text, severity FROM fakes')
+        fields = (self.text, self.severity.value)
+        if fields in news:
+            print('Such fake already exists.')
+            return None
+        news_feed_database.execute_query(
+            '''
+            INSERT INTO fakes(text, severity) VALUES (?, ?)
+            ''', *fields
+        )
 
 
 def create_fake() -> Fake:
@@ -250,6 +291,58 @@ def create_file() -> File:
     )
 
 
+class NewsFeedDatabase:
+    DATABASE_NAME: str = 'newsfeed.db'
+
+    def __init__(self):
+        self.con = sqlite3.connect(self.DATABASE_NAME)
+        self.cur = self.con.cursor()
+
+    def create_news_table(self) -> None:
+        self.execute_query(
+            '''
+            CREATE TABLE IF NOT EXISTS news (
+                id INTEGER PRIMARY KEY,
+                text TEXT,
+                city TEXT,
+                date TEXT
+            );
+            '''
+        )
+
+    def create_private_ads_table(self) -> None:
+        self.execute_query(
+            '''
+            CREATE TABLE IF NOT EXISTS private_ads (
+                id INTEGER PRIMARY KEY,
+                text TEXT,
+                expiration_date TEXT
+            );
+            '''
+        )
+
+    def create_fakes_table(self) -> None:
+        self.execute_query(
+            '''
+            CREATE TABLE IF NOT EXISTS fakes (
+                id INTEGER PRIMARY KEY,
+                text TEXT,
+                severity TEXT
+            );
+            '''
+        )
+
+    def execute_query(self, query: str, *options) -> None:
+        self.cur.execute(query, options)
+        self.con.commit()
+
+    def read_query(self, query: str, *options) -> list[tuple[Any, ...]]:
+        self.cur.execute(query, options)
+        result = self.cur.fetchall()
+        self.con.commit()
+        return result
+
+
 FILE_PARSERS = {
     'txt': TextFileNewsFeedParser,
     'json': JSONFileNewsFeedParser,
@@ -267,3 +360,11 @@ NEWS_FEED_PATTERNS = {
     NewsFeedType.PRIVATE_AD: r'(.*?)\nActual until: (.*?),',
     NewsFeedType.FAKE: r'(.*?)\nSeverity: (.*?)$',
 }
+
+news_feed_database = NewsFeedDatabase()
+news_feed_database.create_news_table()
+news_feed_database.create_private_ads_table()
+news_feed_database.create_fakes_table()
+
+# check the result
+# print(news_feed_database.read_query('SELECT * FROM news'))
