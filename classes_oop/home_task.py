@@ -165,7 +165,7 @@ class JSONFileNewsFeedParser(NewsFeedParser):
             data = json.load(file)
             return [
                 self._parse_news_feed(news_feed)
-                for news_feed in data
+                for news_feed in data.values()
             ]
 
     def _parse_news_feed(self, news_feed: dict[str, str]) -> NewsFeed:
