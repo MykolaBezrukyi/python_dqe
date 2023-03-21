@@ -8,6 +8,8 @@ from enum import Enum
 from typing import Any
 from xml.etree import ElementTree
 
+from string_object.home_task import normalize_string
+
 FILE_NAME = 'newsfeed.txt'
 
 
@@ -62,18 +64,18 @@ class News(NewsFeed):
 
 
 def create_news() -> News:
-    text = input('Input news text: ')
-    while is_empty_string(text):
-        print('Text input is empty.')
-        text = input('Input news text: ')
-    city = input('Input city name: ')
-    while is_empty_string(city):
-        print('City input is empty.')
-        city = input('Input city name: ')
     return News(
-        text=text,
-        city=city
+        text=text_input('Input news text: '),
+        city=text_input('Input city name: ')
     )
+
+
+def text_input(input_string: str) -> str:
+    content = normalize_string(input(input_string))
+    while is_empty_string(content):
+        print('Input is empty.')
+        content = normalize_string(input(input_string))
+    return content
 
 
 def is_empty_string(string: str) -> bool:
@@ -113,10 +115,7 @@ class PrivateAd(NewsFeed):
 
 
 def create_private_ad() -> PrivateAd:
-    text = input('Input private ad text: ')
-    while is_empty_string(text):
-        print('Text input is empty.')
-        text = input('Input private ad text: ')
+    text = text_input('Input private ad text: ')
     expiration_date = input_expiration_date()
     while is_paste_date(expiration_date):
         print('Expiration date is paste date.')
@@ -170,10 +169,7 @@ class Fake(NewsFeed):
 
 
 def create_fake() -> Fake:
-    text = input('Input fake text: ')
-    while is_empty_string(text):
-        print('Text input is empty.')
-        text = input('Input fake text: ')
+    text = text_input('Input fake text: ')
     severity_str = None
     while severity_str not in [s.value for s in Severity]:
         severity_str = input('Input a severity (critical, major, moderate, minor): ').lower()
@@ -191,13 +187,18 @@ class NewsFeedParser(ABC):
 
 
 class TextFileNewsFeedParser(NewsFeedParser):
+    def __init__(self, records_count: str):
+        self.records_count = records_count
+
     def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
         with open(file_path, 'r', encoding='utf-8') as file:
-            news_feeds = file.read().strip().split('\n\n')
-            return [
-                self._parse_news_feed(news_feed.strip())
-                for news_feed in news_feeds
-            ]
+            data = file.read().strip().split('\n\n')
+            news_feeds = []
+            for news_feed in data:
+                news_feeds.append(self._parse_news_feed(news_feed.strip()))
+                if self.records_count == 'one':
+                    break
+            return news_feeds
 
     def _parse_news_feed(self, news_feed: str) -> NewsFeed:
         news_feed_strings = news_feed.split('\n')
@@ -229,13 +230,18 @@ class TextFileNewsFeedParser(NewsFeedParser):
 
 
 class JSONFileNewsFeedParser(NewsFeedParser):
+    def __init__(self, records_count: str):
+        self.records_count = records_count
+
     def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
-            return [
-                self._parse_news_feed(news_feed)
-                for news_feed in data.values()
-            ]
+            news_feeds = []
+            for news_feed in data.values():
+                news_feeds.append(self._parse_news_feed(news_feed))
+                if self.records_count == 'one':
+                    break
+            return news_feeds
 
     def _parse_news_feed(self, news_feed: dict[str, str]) -> NewsFeed:
         news_feed_type = NewsFeedType(news_feed.get('type'))
@@ -263,13 +269,17 @@ class JSONFileNewsFeedParser(NewsFeedParser):
 
 
 class XMLNewsFeedParser(NewsFeedParser):
+    def __init__(self, records_count: str):
+        self.records_count = records_count
+
     def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            data = ElementTree.parse(file_path)
-            return [
-                self._parse_news_feed(news_feed)
-                for news_feed in data.getroot()
-            ]
+        data = ElementTree.parse(file_path)
+        news_feeds = []
+        for news_feed in data.getroot():
+            news_feeds.append(self._parse_news_feed(news_feed))
+            if self.records_count == 'one':
+                break
+        return news_feeds
 
     def _parse_news_feed(self, news_feed: ElementTree.Element) -> NewsFeed:
         news_feed_type = NewsFeedType(news_feed.attrib.get('type'))
@@ -312,9 +322,10 @@ class File:
 def create_file() -> File:
     file_path = input('Input a path to file: ')
     file_extension = file_path.split('.')[-1]
+    records_count = input('Input a records number (one | many): ')
     return File(
         file_path=file_path,
-        news_feed_parser=FILE_PARSERS[file_extension]()
+        news_feed_parser=FILE_PARSERS[file_extension](records_count)
     )
 
 
@@ -394,4 +405,4 @@ news_feed_database.create_private_ads_table()
 news_feed_database.create_fakes_table()
 
 # check the result
-# print(news_feed_database.read_query('SELECT * FROM news'))
+# print(news_feed_database.read_query('SELECT * FROM fakes'))
