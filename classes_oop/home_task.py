@@ -4,6 +4,7 @@ import os
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
+from xml.etree import ElementTree
 
 FILE_NAME = 'newsfeed.txt'
 
@@ -193,6 +194,40 @@ class JSONFileNewsFeedParser(NewsFeedParser):
             )
 
 
+class XMLNewsFeedParser(NewsFeedParser):
+    def parse_news_feeds(self, file_path: str) -> list[NewsFeed]:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = ElementTree.parse(file_path)
+            return [
+                self._parse_news_feed(news_feed)
+                for news_feed in data.getroot()
+            ]
+
+    def _parse_news_feed(self, news_feed: ElementTree.Element) -> NewsFeed:
+        news_feed_type = NewsFeedType(news_feed.attrib.get('type'))
+        if news_feed_type == NewsFeedType.NEWS:
+            text, city = news_feed.find('text').text, news_feed.find('city').text
+            news = News(
+                text=text,
+                city=city
+            )
+            news.date = datetime.datetime.strptime(news_feed.find('date').text, '%d/%m/%Y %H.%M')
+            return news
+        elif news_feed_type == NewsFeedType.PRIVATE_AD:
+            text, expiration_date_str = news_feed.find('text').text, news_feed.find('expiration_date').text
+            expiration_date = parse_date(expiration_date_str)
+            return PrivateAd(
+                text=text,
+                expiration_date=expiration_date
+            )
+        elif news_feed_type == NewsFeedType.FAKE:
+            text, severity = news_feed.find('text').text, Severity(news_feed.find('severity').text)
+            return Fake(
+                text=text,
+                severity=severity
+            )
+
+
 class File:
     def __init__(self, file_path: str, news_feed_parser: NewsFeedParser):
         self.file_path = file_path
@@ -218,6 +253,7 @@ def create_file() -> File:
 FILE_PARSERS = {
     'txt': TextFileNewsFeedParser,
     'json': JSONFileNewsFeedParser,
+    'xml': XMLNewsFeedParser,
 }
 
 NEWS_FEEDS = {

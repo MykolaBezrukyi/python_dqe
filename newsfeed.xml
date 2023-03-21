@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<newsfeeds>
+  <newsfeed type="news">
+	  <text>some xml news text</text>
+	  <city>some xml news city</city>
+	  <date>03/05/2023 15.22</date>
+  </newsfeed>
+  <newsfeed type="private ad">
+	  <text>some xml private ad text</text>
+	  <expiration_date>03/02/2023</expiration_date>
+  </newsfeed>
+  <newsfeed type="fake">
+	  <text>some xml fake text</text>
+	  <severity>minor</severity>
+  </newsfeed>
+</newsfeeds>

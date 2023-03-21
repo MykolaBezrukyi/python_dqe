@@ -104,6 +104,12 @@ def execute_json_home_task() -> None:
     json_file.remove_file()
 
 
+def execute_xml_home_task() -> None:
+    xml_file = create_file()
+    xml_file.write2file()
+    xml_file.remove_file()
+
+
 def main() -> None:
     # execute_python_basics_home_task()
     # execute_collections_home_task()
@@ -112,7 +118,8 @@ def main() -> None:
     # execute_classes_oop_home_task()
     # execute_modules_home_task()
     # execute_csv_parsing_home_task()
-    execute_json_home_task()
+    # execute_json_home_task()
+    execute_xml_home_task()
 
 
 # execute 'main' func only if the main.py file is executed
