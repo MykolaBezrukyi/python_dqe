@@ -63,11 +63,21 @@ class News(NewsFeed):
 
 def create_news() -> News:
     text = input('Input news text: ')
+    while is_empty_string(text):
+        print('Text input is empty.')
+        text = input('Input news text: ')
     city = input('Input city name: ')
+    while is_empty_string(city):
+        print('City input is empty.')
+        city = input('Input city name: ')
     return News(
         text=text,
         city=city
     )
+
+
+def is_empty_string(string: str) -> bool:
+    return string == ''
 
 
 class PrivateAd(NewsFeed):
@@ -104,17 +114,31 @@ class PrivateAd(NewsFeed):
 
 def create_private_ad() -> PrivateAd:
     text = input('Input private ad text: ')
-    expiration_date = None
-    while expiration_date is None:
-        try:
-            expiration_date = parse_date(input('Input expiration date: '))
-        except ValueError as e:
-            print(e)
-            continue
+    while is_empty_string(text):
+        print('Text input is empty.')
+        text = input('Input private ad text: ')
+    expiration_date = input_expiration_date()
+    while is_paste_date(expiration_date):
+        print('Expiration date is paste date.')
+        expiration_date = input_expiration_date()
     return PrivateAd(
         text=text,
         expiration_date=expiration_date
     )
+
+
+def input_expiration_date() -> datetime.date:
+    expiration_date = None
+    while expiration_date is None:
+        try:
+            expiration_date = parse_date(input('Input expiration date: '))
+        except ValueError:
+            ...
+    return expiration_date
+
+
+def is_paste_date(date: datetime.date) -> bool:
+    return date < datetime.datetime.now().date()
 
 
 def parse_date(date_str: str) -> datetime.date:
@@ -147,6 +171,9 @@ class Fake(NewsFeed):
 
 def create_fake() -> Fake:
     text = input('Input fake text: ')
+    while is_empty_string(text):
+        print('Text input is empty.')
+        text = input('Input fake text: ')
     severity_str = None
     while severity_str not in [s.value for s in Severity]:
         severity_str = input('Input a severity (critical, major, moderate, minor): ').lower()
